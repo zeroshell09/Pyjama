@@ -19,7 +19,7 @@ if __name__ == "__main__":
     X, Y = rv.poly_reverse(x_train,y_train,degree=4)
 
     #plot all curves
-    plt.plot(x_plot, tr.simple_sinusoid(x_plot), c='g')
-    plt.scatter(x_train,tr.simple_sinusoid(x_train))
+    plt.plot(x_plot, tr.plagma(x_plot), c='g')
+    plt.scatter(x_train,tr.plagma(x_train))
     plt.plot(X, Y, c='r')
     plt.show()
