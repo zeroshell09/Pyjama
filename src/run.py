@@ -2,9 +2,21 @@ import numpy as np
 from matplotlib import pyplot as plt
 from plagma import transformer as tr
 from plagma import reverser as rv
+from simulator import virtualSensor as v
+from dataviz import series
+from threading import Event
 
 if __name__ == "__main__":
 
+    canceller = Event()
+    animator = series.AnimatedTimeSeries((0,15),(-10,10))
+    v = v.VirtualSensor("1",animator.consume,event=canceller)
+    v.start()
+    animator.start(frames=250)
+    canceller.set()
+
+def try_interpolate():
+    
     # x acis
     x_plot = np.linspace(0, 10, 100)
     x = np.linspace(0, 10, 100)
