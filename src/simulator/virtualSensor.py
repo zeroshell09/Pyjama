@@ -7,7 +7,7 @@ import collections
 
 class VirtualSensor(Thread):
 
-    def __init__(self, deviceId, consumer, event, frequency=0.02):
+    def __init__(self, deviceId, consumer, event, frequency=0.010):
 
         Thread.__init__(self)
         self._id = deviceId
@@ -15,14 +15,16 @@ class VirtualSensor(Thread):
         self._producer = lambda x: x * sin(x)
         self._frequency = frequency
         self._cancellationToken = event
-        self._reset()
+        self._deque  = collections.deque(np.linspace(0,100, 1000))
 
     def _reset(self):
-        self._deque = collections.deque(np.linspace(0,10, 100))
+        
+        if self._deque :
+            self._deque.clear()
 
     def run(self):
 
-        while not self._cancellationToken.wait(self._frequency):
+        while self._deque and not self._cancellationToken.wait(self._frequency):
             self._produce()
 
             if not self._deque:
