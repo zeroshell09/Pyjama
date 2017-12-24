@@ -10,6 +10,8 @@ from threading import Event
 from storage.queue import azureService as az
 from json import load
 
+VERBOSE = False
+
 def try_interpolate(deg=5):
     
     # x acis
@@ -33,24 +35,30 @@ def try_interpolate(deg=5):
     plt.show()
 
 
-def try_animated_interpolation():
+def try_animated_interpolation(noise = 25):
     
     #cancellation token
-    canceller = Event()
+    cancellationToken = Event()
+
+    #series
+    serie1 = series.Serie("The normal data sequence",color='b')
+    serie2 = series.Serie("Data Sequence with missing data",color='r')
 
     #consumer
-    animator = series.AnimatedTimeSeries((0,120),(-100,100))
+    animator = series.AnimatedTimeSeries((0,120),(-100,100),series=[serie1,serie2])
 
     #data producer
-    sensor = v.VirtualSensor("1",animator.consume,event=canceller)
-    sensor.start()
+    sensor1 = v.VirtualSensor("1",serie1.consume,event=cancellationToken)
+    sensor2 = v.FaultedSensor("2",serie2.consume,event=cancellationToken,noise=noise,verbose = VERBOSE)
+    
+    sensor1.start()
+    sensor2.start()
 
     #start visualization in real time
     animator.start(frames=12000)
 
     #stop data production when ploting windows is closed
-    canceller.set()
-
+    cancellationToken.set()
 
 def animate_on_azure(accountName,accountKey):
     
@@ -58,13 +66,9 @@ def animate_on_azure(accountName,accountKey):
     queue = az.AzureQueue(accountName,accountKey)
     consumer = lambda v : queue.push_message("sensor",str(v))
 
-    #cancellation token
-    canceller = Event()
-
     #data producer
-    sensor = v.VirtualSensor("1",consumer,event=canceller)
+    sensor = v.FaultedSensor("1",consumer,event=Event(),verbose = VERBOSE)
     sensor.start()
-
 
 def load_azure_settings(filename):
 
@@ -79,4 +83,6 @@ if __name__ == "__main__":
     account = settings['storage_account']
     key = settings['storage_account_key']
 
-    animate_on_azure(account,key)
+    # animate_on_azure(account,key)
+    try_animated_interpolation()
+
