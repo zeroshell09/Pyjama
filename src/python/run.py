@@ -35,7 +35,7 @@ def try_interpolate(deg=5):
     plt.show()
 
 
-def try_animated_interpolation(noise = 25):
+def try_animated_interpolation(noise = 80):
     
     #cancellation token
     cancellationToken = Event()
@@ -85,4 +85,3 @@ if __name__ == "__main__":
 
     # animate_on_azure(account,key)
     try_animated_interpolation()
-
